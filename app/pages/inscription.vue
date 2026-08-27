@@ -39,10 +39,6 @@ async function submit() {
 	}
 
 	sent.value = true
-
-	await authClient.getSession({ query: { disableCookieCache: true } })
-	await clearNuxtData('auth:session')
-	await navigateTo('/cursus', { external: true })
 }
 </script>
 

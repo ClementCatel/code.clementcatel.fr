@@ -8,6 +8,8 @@ import { sendMail } from './email'
 const STUDENT_DOMAIN = '@etu.unicaen.fr'
 
 function isAllowedEmail(email: string) {
+  if (process.env.NODE_ENV !== 'production') return true
+  
   const normalized = email.toLowerCase()
   if (normalized.endsWith(STUDENT_DOMAIN)) return true
   return normalized === process.env.TEACHER_EMAIL?.toLowerCase()
