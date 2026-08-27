@@ -21,7 +21,7 @@
 				icon="i-simple-icons-github"
 				color="neutral"
 				variant="ghost"
-				to="https://github.com/nuxt/nuxt"
+				to="https://github.com/ClementCatel/code.clementcatel.fr"
 				target="_blank"
 				aria-label="GitHub"
 			/>
