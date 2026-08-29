@@ -3,20 +3,32 @@ import {
 	exerciseInputSchema,
 	type ExerciseInput,
 } from '#shared/schemas/exercise'
-import type { TestResult } from '~/utils/runner'
+import type { ExerciseTest, TestResult } from '~/utils/runner'
 
-const props = defineProps<{ curriculumId: string }>()
+const props = defineProps<{
+  curriculumId: string
+  exercise?: {
+    id: string
+    title: string
+    statement: string
+    starterFiles: CodeFiles
+    solutionFiles: CodeFiles
+    tests: ExerciseTest[]
+  }
+}>()
 const emit = defineEmits<{ saved: [id: string] }>()
 
 const FILE_KEYS = ['html', 'css', 'js'] as const
 
 const state = reactive<ExerciseInput>({
-	curriculumId: props.curriculumId,
-	title: '',
-	statement: '',
-	starterFiles: { html: '', css: '', js: '' },
-	solutionFiles: { html: '', css: '', js: '' },
-	tests: [{ label: '', code: '' }],
+  curriculumId: props.curriculumId,
+  title: props.exercise?.title ?? '',
+  statement: props.exercise?.statement ?? '',
+  starterFiles: { ...(props.exercise?.starterFiles ?? { html: '', css: '', js: '' }) },
+  solutionFiles: { ...(props.exercise?.solutionFiles ?? { html: '', css: '', js: '' }) },
+  tests: props.exercise?.tests?.length
+    ? props.exercise.tests.map(t => ({ ...t }))
+    : [{ label: '', code: '' }],
 })
 
 const { run, running } = useTestRunner()
@@ -51,23 +63,22 @@ async function verify() {
 }
 
 async function save() {
-	if (!verified.value) return
-	saving.value = true
-	try {
-		const row = await $fetch<{ id: string }>('/api/exercises', {
-			method: 'POST',
-			body: state,
-		})
-		emit('saved', row.id)
-	} catch (e: unknown) {
-		toast.add({
-			title: "Échec de l'enregistrement",
-			description: (e as { data?: { message?: string } }).data?.message,
-			color: 'error',
-		})
-	} finally {
-		saving.value = false
-	}
+  if (!verified.value) return
+  saving.value = true
+  try {
+    const row = props.exercise
+      ? await $fetch<{ id: string }>(`/api/exercises/${props.exercise.id}`, {
+          method: 'PATCH',
+          body: { ...state, curriculumId: undefined },
+        })
+      : await $fetch<{ id: string }>('/api/exercises', { method: 'POST', body: state })
+
+    emit('saved', row.id)
+  } catch (e: unknown) {
+    toast.add({ title: 'Échec de l\'enregistrement', description: (e as { data?: { message?: string } }).data?.message, color: 'error' })
+  } finally {
+    saving.value = false
+  }
 }
 </script>
 
@@ -83,7 +94,7 @@ async function save() {
 		</UFormField>
 
 		<UFormField label="Consigne" name="statement">
-			<UTextarea v-model="state.statement" :rows="4" class="w-full" />
+			<UTextarea v-model="state.statement" :rows="6" class="w-full" />
 		</UFormField>
 
 		<section class="space-y-3">

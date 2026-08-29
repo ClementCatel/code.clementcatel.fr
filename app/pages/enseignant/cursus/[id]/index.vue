@@ -68,7 +68,12 @@ async function remove(exerciseId: string) {
 				class="flex items-center gap-3 rounded-lg bg-zinc-800 p-3"
 			>
 				<span class="w-6 text-sm text-gray-400">{{ i + 1 }}</span>
-				<span class="flex-1 font-medium">{{ ex.title }}</span>
+				<NuxtLink
+					:to="`/enseignant/cursus/${id}/exercice/${ex.id}`"
+					class="flex-1 font-medium hover:underline"
+				>
+					{{ ex.title }}
+				</NuxtLink>
 
 				<UButton
 					size="xs"
