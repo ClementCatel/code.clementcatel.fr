@@ -42,6 +42,30 @@ function safeJson(value: unknown) {
   return JSON.stringify(value).replace(/</g, '\\u003c')
 }
 
+const navigationShim = `
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest && e.target.closest('a');
+    if (!link) return;
+
+    var href = link.getAttribute('href') || '';
+
+    if (href.charAt(0) === '#') {
+      e.preventDefault();
+      var target = document.getElementById(href.slice(1));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    if (href.indexOf('http') === 0 || href.indexOf('mailto:') === 0) {
+      e.preventDefault();
+      window.open(href, '_blank');
+    }
+  });
+})();
+</script>`
+
 export function buildDoc(files: CodeFiles, tests?: ExerciseTest[], runId?: string) {
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -49,6 +73,7 @@ export function buildDoc(files: CodeFiles, tests?: ExerciseTest[], runId?: strin
 <body>
 ${files.html}
 <script>${files.js}</script>
+${navigationShim}
 ${tests && runId ? `<script>${harness(tests, runId)}</script>` : ''}
 </body>
 </html>`

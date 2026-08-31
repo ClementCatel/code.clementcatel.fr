@@ -19,7 +19,7 @@ const doc = computed(() => buildDoc(debounced.value))
 <template>
 	<iframe
 		:srcdoc="doc"
-		sandbox="allow-scripts"
+		sandbox="allow-scripts allow-popups"
 		class="h-full w-full rounded-lg border bg-white"
 	/>
 </template>

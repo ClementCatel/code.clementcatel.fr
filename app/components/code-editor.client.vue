@@ -26,6 +26,11 @@ function languageExtension() {
 	return javascript()
 }
 
+const heightTheme = EditorView.theme({
+  '&': { height: '100%' },
+  '.cm-scroller': { overflow: 'auto' },
+})
+
 onMounted(() => {
 	view = new EditorView({
 		parent: host.value!,
@@ -36,6 +41,7 @@ onMounted(() => {
 				keymap.of([indentWithTab]),
 				languageCompartment.of(languageExtension()),
 				oneDark,
+				heightTheme,
 				readonlyCompartment.of(
 					EditorState.readOnly.of(props.readonly ?? false),
 				),
@@ -82,5 +88,5 @@ onBeforeUnmount(() => view?.destroy())
 </script>
 
 <template>
-	<div ref="host" class="h-full overflow-auto rounded-lg border text-sm" />
+	<div ref="host" class="relative min-h-0 overflow-hidden rounded-lg border text-sm" />
 </template>

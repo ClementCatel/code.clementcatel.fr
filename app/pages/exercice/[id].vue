@@ -70,7 +70,7 @@ function goNext() {
 			>
 		</header>
 
-		<div class="grid flex-1 grid-cols-3 gap-4 overflow-hidden p-4">
+		<div class="grid flex-1 grid-cols-[3fr_4fr_3fr] gap-4 overflow-hidden p-4">
 			<section class="flex flex-col gap-3 overflow-y-auto">
 				<div
 					v-if="solved"
@@ -124,7 +124,7 @@ function goNext() {
 				</div>
 			</section>
 
-			<section class="flex flex-col overflow-hidden">
+			<section class="flex min-h-0 flex-col overflow-hidden">
 				<div class="mb-2 flex gap-1">
 					<UButton
 						v-for="key in FILE_KEYS"

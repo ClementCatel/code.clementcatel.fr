@@ -11,7 +11,7 @@ export function useTestRunner() {
 
     return new Promise((resolve) => {
       const frame = document.createElement('iframe')
-      frame.setAttribute('sandbox', 'allow-scripts')
+      frame.setAttribute('sandbox', 'allow-scripts allow-popups')
       frame.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden'
 
       let settled = false
