@@ -66,5 +66,16 @@
   "overrides": {
     "@codemirror/state": "$@codemirror/state",
     "@codemirror/view": "$@codemirror/view"
-  }
+  },
+  "pnpm": {
+  "overrides": {
+    "@codemirror/state": "$@codemirror/state",
+    "@codemirror/view": "$@codemirror/view"
+  },
+  "onlyBuiltDependencies": [
+    "esbuild",
+    "unrs-resolver",
+    "vue-demi"
+  ]
+}
 }

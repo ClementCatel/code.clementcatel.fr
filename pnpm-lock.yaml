@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@codemirror/state': ^6.7.1
+  '@codemirror/view': ^6.43.9
+
 importers:
 
   .:
