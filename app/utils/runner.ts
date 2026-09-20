@@ -15,11 +15,45 @@ const harness = (tests: ExerciseTest[], runId: string) => `
     return getComputedStyle(el);
   }
 
+  function hoverStyle(sel) {
+    var rules = [];
+    for (var i = 0; i < document.styleSheets.length; i++) {
+      try { rules = rules.concat(Array.from(document.styleSheets[i].cssRules)) }
+      catch (e) {}
+    }
+
+    var rule = null;
+    for (var j = 0; j < rules.length && !rule; j++) {
+      var r = rules[j];
+      if (!r.selectorText) continue;
+      var parts = r.selectorText.split(',');
+      for (var k = 0; k < parts.length; k++) {
+        if (parts[k].trim() === sel + ':hover') { rule = r; break }
+      }
+    }
+    if (!rule) return null;
+
+    var probe = document.createElement('span');
+    probe.style.cssText = rule.style.cssText;
+    document.body.appendChild(probe);
+
+    var computed = getComputedStyle(probe);
+    var snapshot = {};
+    for (var p = 0; p < computed.length; p++) {
+      var name = computed[p];
+      var camel = name.replace(/-([a-z])/g, function (m, c) { return c.toUpperCase() });
+      snapshot[camel] = computed.getPropertyValue(name);
+    }
+    probe.remove();
+
+    return snapshot;
+  }
+
   function run() {
     var results = TESTS.map(function (t) {
       try {
-        var fn = new Function('$', '$$', 'style', t.code);
-        return { label: t.label, passed: fn($, $$, style) === true };
+        var fn = new Function('$', '$$', 'style', 'hoverStyle', t.code);
+        return { label: t.label, passed: fn($, $$, style, hoverStyle) === true };
       } catch (e) {
         return { label: t.label, passed: false, error: String((e && e.message) || e) };
       }
