@@ -76,12 +76,11 @@ Guard `$$` checks with a length check, because `every` on an empty array returns
 Tests run after the student's script, in the same page. They can call the student's top-level functions and read top-level variables (`let`/`const` included).
 
 - **Test results, not timing**: a test returns `true` synchronously, so anything that resolves later (`setTimeout`, Promises, `fetch`) can't be checked. Keep those topics out of exercises.
-- **Console output**: top-level `console.log` calls have already run by the time the tests start. To check a log, wrap `console.log` inside the test and then call the student's function:
+- **Console output**: the `logs` helper holds every console line since the page loaded, including top-level ones, formatted as the console panel shows them. To check a function's output, note the length first and then call it:
   ```js
-  var logs = []; var log = console.log
-  console.log = function (m) { logs.push(m) }
-  try { saluer('Alice') } finally { console.log = log }
-  return logs[0] === 'Bonjour Alice'
+  var n = logs.length
+  saluer('Alice')
+  return logs[n] === 'Bonjour Alice'
   ```
 - **No dialogs**: the sandbox blocks them, so `alert` does nothing and `prompt` returns `null`. Use the DOM for input and output.
 - **Shared state**: tests run in order on the same page. If a test clicks a button or mutates something, every later test sees the result.

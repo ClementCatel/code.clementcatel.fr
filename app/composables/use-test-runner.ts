@@ -47,7 +47,7 @@ export function useTestRunner() {
 
       window.addEventListener('message', onMessage)
       document.body.appendChild(frame)
-      frame.srcdoc = buildDoc(files, tests, runId)
+      frame.srcdoc = buildDoc(files, runId, tests)
     })
   }
 
