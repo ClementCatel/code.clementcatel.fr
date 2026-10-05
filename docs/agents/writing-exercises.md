@@ -1,16 +1,27 @@
 # Writing exercises
 
-How to write an exercise for the platform. The deliverable fills the teacher form (`app/components/exercise-form.vue`) field by field, so it can be pasted in directly.
+How to write a curriculum and its exercises for the platform. Each curriculum is one file, `content/<id>.ts`, built with `defineCurriculum` from `content/define.ts`, and `pnpm seed:curriculum` loads it into the database. The file is the single source of truth: running the script overwrites edits made in the teacher UI.
+
+## Drafting loop
+
+Write **one exercise per turn**:
+
+1. Present the exercise in chat for review: the title, the consigne as plain text, starter and solution code as code blocks, then the tests.
+2. Stop and wait for the user's feedback, revising until they approve.
+3. Add the approved exercise to `content/<id>.ts`, then draft the next one.
 
 ## Fields
 
-| Form field | Content |
+| Field | Content |
 | --- | --- |
-| **Titre** | The concept covered, max 120 chars: `La propriété color`, `Les sélecteurs de classe`. |
-| **Consigne** | The statement. See [Consigne](#consigne). |
-| **Code de départ** | HTML / CSS / JS the student starts from. |
-| **Solution de référence** | HTML / CSS / JS that passes every test. The form refuses to save until it does. |
-| **Tests** | 1 to 5 tests, each a label and some code. See [Tests](#tests). |
+| `slug` | Stable kebab-case key. Renaming it creates a new exercise and drops student progress on the old one. Leave published slugs alone. |
+| `title` | The concept covered, max 120 chars: `La propriété color`, `Les sélecteurs de classe`. |
+| `statement` | The consigne. See [Consigne](#consigne). |
+| `starterFiles` | `{ html, css, js }` the student starts from. Leave out empty files. |
+| `solutionFiles` | `{ html, css, js }` that passes every test. |
+| `tests` | 1 to 5 tests, each with a `label` and some `code`. See [Tests](#tests). |
+
+Array order sets the exercise order. Indent multi-line template literals with the surrounding code, since the script strips the common indentation.
 
 All student-facing text (title, consigne, test labels, code comments) is in **French**, neutral tone, **vouvoiement** ("Ajoutez", "votre titre").
 
@@ -84,3 +95,13 @@ Every few exercises, once a group of concepts is done, add a recap:
 - **Code de départ**: working-looking code with one mistake per concept being reviewed (a wrong property, a mistyped selector, a missing tag). Only use concepts from the previous exercises.
 - **Consigne**: one sentence of context, then the Objectifs as a list of what the result must look like. Describe the expected outcome rather than pointing at the bugs.
 - **Tests**: one per mistake to fix, still 5 at most.
+
+## Loading into the platform
+
+`DATABASE_URL` points at **production**.
+
+1. Run `pnpm seed:curriculum <id>`. It's a dry run that validates the file and prints, for the curriculum and each exercise, whether it will be created, updated or left unchanged. Show this plan to the user.
+2. Run `pnpm seed:curriculum <id> --apply` only after the user confirms the plan. New curricula are created unpublished, and the script never changes `published`.
+3. Hand over to the user. The script skips the form's solution check, so the user has to click "Vérifier contre ma solution" on each exercise, play through the curriculum as a student, and then publish it in the UI.
+
+If the database holds exercises that are missing from the file, the script aborts and shows how much student progress each one has. `--prune` deletes them along with that progress, so ask the user before using it.

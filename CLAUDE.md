@@ -13,7 +13,7 @@ Read the matching doc before touching that area:
 - [Auth & roles](docs/agents/auth.md): sign-up rules, sessions, the teacher and student roles.
 - [Exercise runner](docs/agents/exercise-runner.md): the preview iframe, the test harness, test helpers like `hoverStyle`.
 - [Frontend](docs/agents/frontend.md): pages, components, the CodeMirror editor.
-- [Writing exercises](docs/agents/writing-exercises.md): drafting exercise content (title, consigne, starter code, solution, tests), including recaps.
+- [Writing exercises](docs/agents/writing-exercises.md): writing a curriculum or exercises in `content/`, and loading them with `pnpm seed:curriculum`.
 
 ## Agent skills
 

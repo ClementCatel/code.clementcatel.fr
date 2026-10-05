@@ -11,7 +11,8 @@
     "postinstall": "nuxt prepare",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "seed:teacher": "tsx scripts/seed-teacher.ts"
+    "seed:teacher": "tsx scripts/seed-teacher.ts",
+    "seed:curriculum": "tsx scripts/seed-curriculum.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.0",

@@ -5,6 +5,7 @@ Postgres through Drizzle (`drizzle-orm` 1.0 RC) and the `postgres` driver. Every
 - **Schema**: `server/database/schema.ts` is the only schema file. `curriculum`, `exercise` and `progress` belong to the app. `user`, `session`, `account` and `verification` are better-auth's tables.
 - **Migrations**: edit the schema, then run `pnpm db:generate` and review the SQL it writes to `server/database/migrations/`, then run `pnpm db:migrate`. Commit the generated migration together with the schema change.
 - **Teacher account**: `pnpm seed:teacher` creates or promotes `TEACHER_EMAIL`.
+- **Curriculum content**: `pnpm seed:curriculum`. See [writing-exercises.md](writing-exercises.md).
 
 ## Gotchas
 

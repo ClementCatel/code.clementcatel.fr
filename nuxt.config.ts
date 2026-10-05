@@ -29,7 +29,7 @@ export default defineNuxtConfig({
   },
   typescript: {
     nodeTsConfig: {
-      include: ['../drizzle.config.ts', '../scripts/seed-teacher.ts'],
+      include: ['../drizzle.config.ts', '../scripts/*.ts', '../content/*.ts'],
       compilerOptions: { types: ['node'] },
     },
   },
