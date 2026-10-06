@@ -103,6 +103,11 @@ Tests run after the student's script, in the same page. They can call the studen
   ```
   Prefer value checks once the student writes functions, since a test can then call them with several inputs.
 - **No dialogs**: the sandbox blocks them, so `alert` does nothing and `prompt` returns `null`. Use the DOM for input and output.
+- **Forms**: set the fields' `value`, then send a synthetic event. It runs the student's `submit` listener without submitting for real, so a missing `preventDefault` can't navigate the test page, and `dispatchEvent` returns `false` when the listener called it:
+  ```js
+  $('.email').value = 'alice@exemple.fr'
+  return !$('form').dispatchEvent(new Event('submit', { cancelable: true }))
+  ```
 - **Shared state**: tests run in order on the same page. If a test clicks a button or mutates something, every later test sees the result. Put tests that read state left by the student's script (call counts, top-level logs) before tests that call the student's functions. Tests on functions that change an array or object should build their own, rather than rely on the student's.
 - **Starter calls**: when the student writes functions, call them at the bottom of the starter. The console then shows how they're used, an error until they exist, and their output once they do.
 - **Load errors**: a crash while the student's script loads isn't reported as a crash. The tests fail with messages like `saluer is not defined`, so word the labels so they still point the student at what to fix.
