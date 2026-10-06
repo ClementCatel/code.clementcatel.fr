@@ -4,7 +4,9 @@ How to write a curriculum and its exercises for the platform. Each curriculum is
 
 ## Drafting loop
 
-Write **one exercise per turn**:
+For a new curriculum, first propose the plan: the ordered list of exercises, grouped by section, with the recaps. The user usually trims it, so wait for approval before drafting.
+
+Then write **one exercise per turn**:
 
 1. Present the exercise in chat for review: the title, the consigne as plain text, starter and solution code as code blocks, then the tests.
 2. Stop and wait for the user's feedback, revising until they approve.
@@ -31,9 +33,13 @@ Write literal text values in double quotes, so the student sees exactly where th
 
 Phrase objectives with the technical term for the action (déclarez, affectez, concaténez, appelez), not an everyday verb like "rangez" or "mettez".
 
+Use common first names in examples and data: Alice, Bob.
+
 ## Scope
 
 One short concept per exercise. If an objective needs a second concept the student hasn't seen yet, it belongs to the next exercise.
+
+Aim for two objectives, three at most. If the consigne introduces more than three methods or properties, split the exercise.
 
 ## Consigne
 
@@ -59,6 +65,8 @@ Objectifs :
 - Colorez les paragraphes en gris (#666666).
 ```
 
+When two things look alike, say what makes them differ, and show both in the example with a comment on each line. For instance, `user.age = 31` and `user.city = 'Caen'` have the same syntax, so say that the first replaces an existing property and the second creates one. Give a précision enough context to stand on its own, with a short example, rather than a one-line rule.
+
 ## Tests
 
 Each test is a **JS function body that returns `true`** to pass. It can use the helpers `$`, `$$`, `style` and `hoverStyle`; their signatures are in [exercise-runner.md](exercise-runner.md).
@@ -66,6 +74,7 @@ Each test is a **JS function body that returns `true`** to pass. It can use the 
 - **Label**: shown to the student as a checklist item, so state the expected result in the Objectifs' wording: `Le titre h1 est bleu`.
 - **Coverage**: one test per objective at minimum, 5 tests at most.
 - **Fails on the starter code**: if a test already passes before the student does anything, either the starter code or the test is wrong.
+- **Inputs that catch mistakes**: call functions with several inputs, and include the boundary (exactly 8 characters for "at least 8", an empty array, a one-element array) and an input that a common wrong answer gets wrong. When presenting the draft, say which mistake each input catches.
 - **Computed values**: `style()` and `hoverStyle()` return normalised values. Colors come back as `rgb(r, g, b)` and lengths in `px`. Compare against those forms (`blue` → `rgb(0, 0, 255)`, `#666666` → `rgb(102, 102, 102)`, `1em` → `16px` by default).
 
 ```js
@@ -94,7 +103,8 @@ Tests run after the student's script, in the same page. They can call the studen
   ```
   Prefer value checks once the student writes functions, since a test can then call them with several inputs.
 - **No dialogs**: the sandbox blocks them, so `alert` does nothing and `prompt` returns `null`. Use the DOM for input and output.
-- **Shared state**: tests run in order on the same page. If a test clicks a button or mutates something, every later test sees the result.
+- **Shared state**: tests run in order on the same page. If a test clicks a button or mutates something, every later test sees the result. Put tests that read state left by the student's script (call counts, top-level logs) before tests that call the student's functions. Tests on functions that change an array or object should build their own, rather than rely on the student's.
+- **Starter calls**: when the student writes functions, call them at the bottom of the starter. The console then shows how they're used, an error until they exist, and their output once they do.
 - **Load errors**: a crash while the student's script loads isn't reported as a crash. The tests fail with messages like `saluer is not defined`, so word the labels so they still point the student at what to fix.
 
 ## Recap exercises
@@ -105,6 +115,17 @@ Every few exercises, once a group of concepts is done, add a recap:
 - **Code de départ**: working-looking code with one mistake per concept being reviewed (a wrong property, a mistyped selector, a missing tag). Only use concepts from the previous exercises.
 - **Consigne**: one sentence of context, then the Objectifs as a list of what the result must look like. Describe the expected outcome rather than pointing at the bugs.
 - **Tests**: one per mistake to fix, still 5 at most.
+- **Crashes**: if a mistake crashes the script, put it last in the starter, so the console still shows the other mistakes' wrong output first.
+
+## Checking the file
+
+After adding exercises, check every starter and solution against its tests with the real harness:
+
+```sh
+pnpm exec tsx scripts/check-curriculum.ts <id> <out.html>
+```
+
+It writes a page that runs each exercise twice, in iframes. Serve it from a local host (`python3 -m http.server`) and open it in the browser. Every line must read `OK`: the starter fails every test, and the solution passes every test. A `FAIL` line lists the tests that went the wrong way.
 
 ## Loading into the platform
 
