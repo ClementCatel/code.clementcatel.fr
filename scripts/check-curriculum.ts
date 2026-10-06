@@ -60,7 +60,7 @@ window.addEventListener('message', function (e) {
 });
 runs.forEach(function (run) {
   var frame = document.createElement('iframe');
-  frame.sandbox = 'allow-scripts';
+  frame.sandbox = 'allow-scripts allow-popups allow-forms';
   frame.srcdoc = run.doc;
   document.body.appendChild(frame);
 });

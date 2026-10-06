@@ -54,7 +54,7 @@ const levelClass: Record<ConsoleEntry['level'], string> = {
 			<iframe
 				ref="frame"
 				:srcdoc="doc"
-				sandbox="allow-scripts allow-popups"
+				sandbox="allow-scripts allow-popups allow-forms"
 				class="min-h-0 w-full flex-1 rounded-lg border bg-white"
 			/>
 		</ClientOnly>
