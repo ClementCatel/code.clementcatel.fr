@@ -25,6 +25,12 @@ Array order sets the exercise order. Indent multi-line template literals with th
 
 All student-facing text (title, consigne, test labels, code comments) is in **French**, neutral tone, **vouvoiement** ("Ajoutez", "votre titre").
 
+Code identifiers (variables, functions, properties, CSS classes) are in **English**, as in real codebases: `firstName`, `totalPrice`. String values and comments stay in French. In the consigne and the test labels, wrap identifiers in French guillemets so they stand out from the text: `Déclarez une variable « firstName »`. Put each identifier where its value would go in the sentence, so the sentence translates it without brackets: `le prix de « quantity » places à « ticketPrice » euros chacune`.
+
+Write literal text values in double quotes, so the student sees exactly where the text starts and ends, spaces included: `affectez à « summary » le texte "Total de l'achat : 90 euros"`.
+
+Phrase objectives with the technical term for the action (déclarez, affectez, concaténez, appelez), not an everyday verb like "rangez" or "mettez".
+
 ## Scope
 
 One short concept per exercise. If an objective needs a second concept the student hasn't seen yet, it belongs to the next exercise.
