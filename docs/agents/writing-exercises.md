@@ -82,6 +82,11 @@ Tests run after the student's script, in the same page. They can call the studen
   saluer('Alice')
   return logs[n] === 'Bonjour Alice'
   ```
+- **Checking the technique**: tests only see the final values for the starter's fixed inputs, so a student can hard-code the result. When the exercise is about a technique (`const`, `if`, a loop, a template string), add a check on `source`, the student's JS as a string. Keep the regex loose about whitespace, and make sure it can't match the starter's comments:
+  ```js
+  return /\bif\s*\(/.test(source)
+  ```
+  Prefer value checks once the student writes functions, since a test can then call them with several inputs.
 - **No dialogs**: the sandbox blocks them, so `alert` does nothing and `prompt` returns `null`. Use the DOM for input and output.
 - **Shared state**: tests run in order on the same page. If a test clicks a button or mutates something, every later test sees the result.
 - **Load errors**: a crash while the student's script loads isn't reported as a crash. The tests fail with messages like `saluer is not defined`, so word the labels so they still point the student at what to fix.

@@ -1,4 +1,5 @@
 import type { CodeFiles, ExerciseTest  } from '#shared/schemas/exercise'
+import { guardLoops } from './loop-guard'
 
 export type { CodeFiles, ExerciseTest }
 export type TestResult = { label: string; passed: boolean; error?: string }
@@ -54,13 +55,28 @@ const consoleShim = (runId: string, forward: boolean) => `
   });
 
   window.addEventListener('error', function (e) { forward('error', String(e.message)) });
+
+  // Called at the start of every loop body (see loop-guard.ts). The start time
+  // resets once the current task ends, so only a loop that never yields trips it.
+  var loopStart = 0;
+  window.__loopGuard = function () {
+    var now = Date.now();
+    if (!loopStart) {
+      loopStart = now;
+      setTimeout(function () { loopStart = 0 }, 0);
+    }
+    if (now - loopStart > 1000) {
+      throw new Error("Boucle infinie ? La boucle tourne depuis plus d'une seconde.");
+    }
+  };
 })();
 `
 
-const harness = (tests: ExerciseTest[], runId: string) => `
+const harness = (tests: ExerciseTest[], runId: string, source: string) => `
 (function () {
   var TESTS = ${safeJson(tests)};
   var RUN_ID = ${safeJson(runId)};
+  var SOURCE = ${safeJson(source)};
 
   function $(s) { return document.querySelector(s) }
   function $$(s) { return Array.from(document.querySelectorAll(s)) }
@@ -106,8 +122,8 @@ const harness = (tests: ExerciseTest[], runId: string) => `
   function run() {
     var results = TESTS.map(function (t) {
       try {
-        var fn = new Function('$', '$$', 'style', 'hoverStyle', 'logs', t.code);
-        return { label: t.label, passed: fn($, $$, style, hoverStyle, window.__exerciseLogs) === true };
+        var fn = new Function('$', '$$', 'style', 'hoverStyle', 'logs', 'source', t.code);
+        return { label: t.label, passed: fn($, $$, style, hoverStyle, window.__exerciseLogs, SOURCE) === true };
       } catch (e) {
         return { label: t.label, passed: false, error: String((e && e.message) || e) };
       }
@@ -161,9 +177,9 @@ export function buildDoc(files: CodeFiles, runId: string, tests?: ExerciseTest[]
 <head><meta charset="utf-8"><script>${consoleShim(runId, !tests)}</script><style>${files.css}</style></head>
 <body>
 ${files.html}
-<script>${files.js}</script>
+<script>${guardLoops(files.js)}</script>
 ${navigationShim}
-${tests ? `<script>${harness(tests, runId)}</script>` : ''}
+${tests ? `<script>${harness(tests, runId, files.js)}</script>` : ''}
 </body>
 </html>`
 }
