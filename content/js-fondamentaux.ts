@@ -976,7 +976,7 @@ export default defineCurriculum({
         Objectifs :
         - Déclarez une fonction « square » qui renvoie le carré du nombre reçu : square(3) renvoie 9.
         - Déclarez une fonction « priceWithTax » qui renvoie un prix augmenté de 20 % : priceWithTax(50) renvoie 60.
-        - Déclarez « total », la somme de priceWithTax(10) et priceWithTax(25).
+        - Déclarez une constante « total », la somme de priceWithTax(10) et priceWithTax(25).
       `,
       starterFiles: {
         js: `
