@@ -17,7 +17,7 @@ A teacher writes each test as a **JS function body that returns `true`** to pass
 | Helper | Returns |
 | --- | --- |
 | `$(sel)` / `$$(sel)` | `querySelector` / `querySelectorAll`, the latter as an array |
-| `style(el)` | `getComputedStyle(el)`, throwing `Élément introuvable` when `el` is null |
+| `style(el)` | `getComputedStyle(el)` with exact border and outline widths (see Gotchas), throwing `Élément introuvable` when `el` is null |
 | `hoverStyle(sel)` | The computed styles of the `sel:hover` rule (camelCase keys), or `null` |
 | `logs` | Every console line since the page loaded, as strings formatted like the console panel shows them (`Bonjour Alice 42`, `[1, 'a']`, `{ nom: 'Alice' }`) |
 | `source` | The student's JS file as a string, comments included |
@@ -29,4 +29,5 @@ To add a helper, define it in the `harness` string and add it to **both** the `n
 - The harness is a template string injected into the student's page. Write it in **ES5** (`var`, `function`), like the code around it. Interpolate values only through `safeJson()`, which escapes `<` so a value can't close the `<script>` tag.
 - The preview tags each rebuild with a new `runId` and drops console messages from earlier runs. The iframe is client-only, so the message listener already exists when the first run logs.
 - `use-test-runner.ts` matches messages on `runId` and the frame's `contentWindow`. A run ends on `exercise:results`, on `exercise:crash`, or after the 3 s timeout, which catches infinite loops. Each of those paths must settle with one result per test.
+- Browsers snap border and outline widths to whole device pixels, so their computed value depends on the student's browser zoom (and, in Safari and WebKit, on a fractional device pixel ratio): at 90% a `2px` border computes to `1.11111px`. `style()` and `hoverStyle()` correct the longhands through `exactWidth()`, which mirrors each declared width into a registered `--exact-*` custom property and keeps the browser's value unless the exact one snaps to it. The mirror writes into the student's stylesheets, but only in the test frame.
 - The iframe sandbox is `allow-scripts allow-popups allow-forms`. `allow-forms` lets a form fire its `submit` event: without it the browser drops the submission before the event, so a student's `submit` listener never runs. Never add `allow-same-origin`: it would let student code reach the app's origin.

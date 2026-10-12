@@ -86,6 +86,8 @@ return $$('p').length > 0 && $$('p').every(p => style(p).color === 'rgb(102, 102
 
 Guard `$$` checks with a length check, because `every` on an empty array returns `true`.
 
+- **Browser zoom**: students run the tests at their own zoom level, and layout values drift by a fraction of a pixel when it isn't 100% (`width: 320px` reads `319.986px` at 67%). Compare layout values with a tolerance, as in `Math.abs(r.width - 300) < 1`, `a.left >= b.right - 1`. Border and outline widths are the exception: `style()` and `hoverStyle()` return their exact declared width, but only through the longhands (`borderTopWidth`, `outlineWidth`), never through the shorthands `border` or `borderWidth`.
+
 ## JS exercises
 
 Tests run after the student's script, in the same page. They can call the student's top-level functions and read top-level variables (`let`/`const` included).

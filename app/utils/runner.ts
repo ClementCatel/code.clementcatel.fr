@@ -78,11 +78,77 @@ const harness = (tests: ExerciseTest[], runId: string, source: string) => `
   var RUN_ID = ${safeJson(runId)};
   var SOURCE = ${safeJson(source)};
 
+  // Browsers snap border and outline widths to whole device pixels, so at a
+  // browser zoom other than 100% a 2px border computes to 1.11111px. Each
+  // declared width is mirrored into a registered custom property, which keeps
+  // the exact length, and exactWidth() reads it back.
+  var SNAPPED = ['border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width', 'outline-width'];
+  var KEYWORDS = { thin: '1px', medium: '3px', thick: '5px' };
+  var UNDECLARED = '-1px';
+  var CAMEL = {};
+  var canMirror = !!(window.CSS && CSS.registerProperty);
+  SNAPPED.forEach(function (p) {
+    CAMEL[p.replace(/-([a-z])/g, function (m, c) { return c.toUpperCase() })] = p;
+    if (!canMirror) return;
+    try { CSS.registerProperty({ name: '--exact-' + p, syntax: '<length>', inherits: false, initialValue: UNDECLARED }) }
+    catch (e) { canMirror = false }
+  });
+
+  function mirror(decl) {
+    SNAPPED.forEach(function (p) {
+      var v = decl.getPropertyValue(p);
+      if (v) decl.setProperty('--exact-' + p, KEYWORDS[v] || v, decl.getPropertyPriority(p));
+    });
+  }
+
+  function mirrorRules(rules) {
+    for (var i = 0; i < rules.length; i++) {
+      if (rules[i].style) mirror(rules[i].style);
+      if (rules[i].cssRules) mirrorRules(rules[i].cssRules);
+    }
+  }
+
+  function exactWidth(el, prop, snapped) {
+    if (!canMirror) return snapped;
+    for (var i = 0; i < document.styleSheets.length; i++) {
+      try { mirrorRules(document.styleSheets[i].cssRules) }
+      catch (e) {}
+    }
+    var inline = el.style && el.style.getPropertyValue(prop);
+    if (inline) el.style.setProperty('--exact-' + prop, KEYWORDS[inline] || inline, el.style.getPropertyPriority(prop));
+    var exact = getComputedStyle(el).getPropertyValue('--exact-' + prop).trim();
+    if (inline) el.style.removeProperty('--exact-' + prop);
+    if (!exact || exact === UNDECLARED) return snapped;
+
+    // Trust the exact width only if it snaps to the browser's value. It doesn't
+    // when the style is none (the width computes to 0) or the winning
+    // declaration is one the mirror can't read, like a logical property.
+    var probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute;visibility:hidden;border:0 solid;outline:0 solid';
+    probe.style.setProperty(prop, exact);
+    document.body.appendChild(probe);
+    var matches = getComputedStyle(probe).getPropertyValue(prop) === snapped;
+    probe.remove();
+    return matches ? exact : snapped;
+  }
+
   function $(s) { return document.querySelector(s) }
   function $$(s) { return Array.from(document.querySelectorAll(s)) }
   function style(el) {
     if (!el) throw new Error('Élément introuvable');
-    return getComputedStyle(el);
+    return new Proxy(getComputedStyle(el), {
+      get: function (computed, key) {
+        if (CAMEL[key]) return exactWidth(el, CAMEL[key], computed[key]);
+        if (key === 'getPropertyValue') {
+          return function (name) {
+            var v = computed.getPropertyValue(name);
+            return SNAPPED.indexOf(name) === -1 ? v : exactWidth(el, name, v);
+          };
+        }
+        var v = computed[key];
+        return typeof v === 'function' ? v.bind(computed) : v;
+      }
+    });
   }
 
   function hoverStyle(sel) {
@@ -113,6 +179,7 @@ const harness = (tests: ExerciseTest[], runId: string, source: string) => `
       var name = computed[p];
       var camel = name.replace(/-([a-z])/g, function (m, c) { return c.toUpperCase() });
       snapshot[camel] = computed.getPropertyValue(name);
+      if (CAMEL[camel]) snapshot[camel] = exactWidth(probe, name, snapshot[camel]);
     }
     probe.remove();
 
